@@ -9,15 +9,23 @@ export default async function handler(req, res) {
     },
   });
 
-  const text = await response.text();
+  const data = await response.json();
+  let html = data.result || "";
 
-  let html = "";
-  try {
-    const data = JSON.parse(text);
-    html = data.result || "";
-  } catch {
-    html = text;
+  // Funzione che prova a fare unwrap di stringhe JSON annidate
+  function tryUnwrap(value) {
+    if (typeof value !== 'string') return value;
+    try {
+      const parsed = JSON.parse(value);
+      // Se parsed è ancora stringa, continua a unwrap
+      return tryUnwrap(parsed);
+    } catch {
+      // Se non si può parsare, restituisci il valore così com’è
+      return value;
+    }
   }
+
+  html = tryUnwrap(html);
 
   res.status(200).json({ html });
 }
