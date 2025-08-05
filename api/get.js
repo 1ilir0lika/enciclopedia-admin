@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
-  const response = await fetch(`${process.env.UPSTASH_REDIS_REST_URL}/get/encyclopedia`, {
+  const response = await fetch('https://<your-upstash-url>/get/encyclopedia', {
     headers: {
-      Authorization: `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}`,
+      Authorization: 'Bearer <your-upstash-token>',
     },
   });
 
