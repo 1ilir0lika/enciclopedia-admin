@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       Authorization: `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ value: html }) // Store raw HTML string
+    body: JSON.stringify({ value: htmlRawString }) // Store raw HTML string
   });
 
   const result = await response.json();
