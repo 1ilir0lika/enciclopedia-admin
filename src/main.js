@@ -3,83 +3,80 @@ const addMainBtn = document.getElementById("add-main");
 const saveBtn = document.getElementById("save");
 const loadBtn = document.getElementById("load");
 const toggleThemeBtn = document.getElementById("toggle-theme");
+
 const actionSelect = document.getElementById("action-select");
 const actionConfirmBtn = document.getElementById("action-confirm");
 
 let selectedParagraph = null;
 
-// 🌙 Cambia tema
+// Tema chiaro/scuro
 toggleThemeBtn.addEventListener("click", () => {
   document.body.classList.toggle("dark-theme");
 });
 
-// ➕ Aggiungi nuovo paragrafo
+// Aggiungi nuovo paragrafo
 addMainBtn.addEventListener("click", () => {
-  const paragraph = createEditableParagraph("Scrivi qui...");
-  encyclopedia.appendChild(paragraph);
-  paragraph.focus();
+  const para = document.createElement("p");
+  para.contentEditable = true;
+  para.className = "editable-paragraph";
+  para.textContent = "Scrivi qui...";
+  encyclopedia.appendChild(para);
+  setupParagraphEvents(para);
+  para.focus();
 });
 
-// 💾 Salva contenuto
+// Salva su Redis
 saveBtn.addEventListener("click", async () => {
-  try {
-    const html = encyclopedia.innerHTML;
+  const html = encyclopedia.innerHTML;
 
-    const res = await fetch("/api/set", {
+  try {
+    const response = await fetch("/api/set", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer admin",
+        Authorization: "Bearer admin", // Cambia se usi un token diverso
       },
       body: JSON.stringify({ html }),
     });
 
-    const data = await res.json();
-
-    if (!res.ok) throw new Error(data.error || "Errore sconosciuto");
-
-    alert("✅ Salvato con successo!");
+    const result = await response.json();
+    if (response.ok) {
+      alert("✅ Salvato con successo!");
+    } else {
+      throw new Error(result.error || "Errore salvataggio");
+    }
   } catch (err) {
     alert("❌ Errore durante il salvataggio: " + err.message);
   }
 });
 
-// 🔄 Carica contenuto
+// Carica da Redis
 loadBtn.addEventListener("click", async () => {
   try {
-    const res = await fetch("/api/get");
-    const data = await res.json();
+    const response = await fetch("/api/get");
+    const { html } = await response.json();
 
-    if (!res.ok) throw new Error(data.error || "Errore sconosciuto");
-
-    encyclopedia.innerHTML = data.html || "";
+    encyclopedia.innerHTML = html || "";
     makeAllParagraphsEditable();
   } catch (err) {
     alert("❌ Errore durante il caricamento: " + err.message);
   }
 });
 
-// 🔁 Aggiorna paragrafi con funzionalità di modifica/selezione
+// Rende ogni paragrafo esistente editabile e selezionabile
 function makeAllParagraphsEditable() {
   const paragraphs = encyclopedia.querySelectorAll("p");
-  paragraphs.forEach(p => {
-    p.contentEditable = true;
-    p.classList.add("editable-paragraph");
-    p.addEventListener("click", () => selectParagraph(p));
-  });
+  paragraphs.forEach(setupParagraphEvents);
 }
 
-// ✏️ Crea un nuovo paragrafo pronto per la modifica
-function createEditableParagraph(text = "") {
-  const p = document.createElement("p");
+// Aggiunge eventi di modifica e selezione
+function setupParagraphEvents(p) {
   p.contentEditable = true;
-  p.className = "editable-paragraph";
-  p.textContent = text;
+  p.classList.add("editable-paragraph");
   p.addEventListener("click", () => selectParagraph(p));
-  return p;
 }
 
-// ✅ Seleziona un paragrafo per azione
+// Gestione selezione
 function selectParagraph(p) {
   if (selectedParagraph) {
     selectedParagraph.classList.remove("selected");
@@ -89,31 +86,19 @@ function selectParagraph(p) {
   actionConfirmBtn.style.display = "inline-block";
 }
 
-// ▶️ Menu azioni (modifica/elimina)
-actionSelect.addEventListener("change", () => {
-  if (actionSelect.value) {
-    actionConfirmBtn.style.display = "inline-block";
-  } else {
-    actionConfirmBtn.style.display = "none";
-  }
-});
-
-// ✅ Esegui l’azione selezionata
+// Conferma azione dal menu (es. elimina)
 actionConfirmBtn.addEventListener("click", () => {
-  if (!selectedParagraph) {
-    alert("Seleziona un paragrafo prima.");
-    return;
-  }
-
   const action = actionSelect.value;
+  if (!action || !selectedParagraph) return;
 
   if (action === "elimina") {
     selectedParagraph.remove();
-  } else if (action === "modifica") {
+  }
+
+  if (action === "modifica") {
     selectedParagraph.focus();
   }
 
-  // Reset
   selectedParagraph.classList.remove("selected");
   selectedParagraph = null;
   actionSelect.value = "";
