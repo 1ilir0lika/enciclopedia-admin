@@ -19,5 +19,7 @@ export default async function handler(req, res) {
     html = text;
   }
 
-  res.status(200).json({ html });
+  // Imposta il tipo MIME per restituire HTML puro
+  res.setHeader('Content-Type', 'text/html');
+  res.status(200).send(html);
 }
