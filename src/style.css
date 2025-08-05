@@ -1,0 +1,385 @@
+/*
+  Foglio di stile per l'Enciclopedia Interattiva
+    (California-level, Glassmorphism avanzato)
+*/index.html
+
+:root {
+  --colore-primario: #f2f2f7;
+  --colore-secondario: rgba(255, 255, 255, 0.6);
+  --colore-accento: #007aff;
+  --colore-testo: #1d1d1f;
+  --colore-contorno: #d1d1d6;
+  --colore-evidenziato: #ffd60a;
+  --ombra-morbida: 0 30px 60px rgba(0, 0, 0, 0.12);
+  --sfondo-vetro: rgba(255, 255, 255, 0.28);
+  --sfocatura: blur(30px);
+  --font-base: -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-base);
+  background: var(--bg-body);
+  color: var(--colore-testo);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+a {
+  margin: 0;
+  font-family: var(--font-base);
+  color: var(--colore-primario);
+  line-height: 1.6;
+  border: none;
+  background-color: var(--colore-accento);
+  padding: 0.6rem 1rem;
+  border-radius: 1rem;
+}
+
+#container {
+  max-width: 960px;
+  margin: 3rem auto;
+  padding: 3rem;
+  background: var(--sfondo-vetro);
+  border-radius: 2rem;
+  box-shadow: var(--ombra-morbida), 0 0 0 1px var(--colore-contorno);
+  backdrop-filter: var(--sfocatura);
+  border: 1px solid var(--colore-contorno);
+  transition: all 0.4s ease-in-out;
+  position: relative;
+  z-index: 10;
+}
+
+/* Pulsante cambio tema */
+#toggle-theme {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background-color: var(--colore-accento);
+  color: #f8f7f7;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  z-index: 1000;
+}
+
+#toggle-theme:hover {
+  background-color: #0066cc;
+}
+
+/* Modalità elimina stile iOS moderno */
+body.delete-mode .title {
+  position: relative;
+  transform-origin: center;
+}
+
+body.delete-mode .title:hover {
+  animation: gentle-shake 1.6s infinite ease-in-out;
+}
+
+.title .delete-btn {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background-color: #e0e0e0;
+  color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='12' cy='12' r='12' fill='%23e0e0e0'/%3E%3Cline x1='7' y1='12' x2='17' y2='12' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  border-radius: 50%;
+  aspect-ratio: 1 / 1;
+  width: min(6vw, 24px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  padding: 0;
+}
+
+.title .delete-btn::before {
+  content: "";
+}
+
+.title .delete-btn:hover {
+  background-color: #bdbdbd;
+  transform: scale(1.1);
+}
+
+@keyframes gentle-shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-1px); }
+  50% { transform: translateX(1px); }
+  75% { transform: translateX(-1px); }
+  100% { transform: translateX(0); }
+}
+
+
+.modifica-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.modifica-input {
+  flex: 1;
+  font-size: 1rem;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid var(--colore-contorno);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: var(--sfocatura);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+  font-family: var(--font-base);
+  transition: all 0.3s ease;
+}
+
+.modifica-input:focus {
+  outline: none;
+  border-color: var(--colore-accento);
+  box-shadow: 0 0 0 2px rgba(0,122,255,0.2);
+}
+
+.modifica-ok {
+  background-color: var(--colore-accento);
+  color: white;
+  border: none;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.modifica-ok:hover {
+  background-color: #0066cc;
+}
+
+
+
+
+
+
+header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--colore-testo);
+  letter-spacing: -0.5px;
+}
+
+#menu-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  background: var(--sfondo-vetro);
+  border-radius: 1.5rem;
+  padding: 1rem;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+  backdrop-filter: var(--sfocatura);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+select, input[type="text"], button {
+  font-family: var(--font-base);
+  font-size: 1rem;
+  padding: 0.7rem 1.4rem;
+  border: 1px solid var(--colore-contorno);
+  border-radius: 1.2rem;
+  background-color: var(--colore-secondario);
+  color: var(--colore-testo);
+  outline: none;
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: var(--sfocatura);
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.3);
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 8L0.803848 0.5L11.1962 0.5L6 8Z' fill='%23007aff'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px;
+  padding-right: 2rem;
+}
+
+select:focus, input:focus, button:focus {
+  border-color: var(--colore-accento);
+  box-shadow: 0 0 10px var(--colore-accento);
+}
+
+button:hover {
+  background-color: rgba(240,240,240,0.85);
+  cursor: pointer;
+}
+
+#controls {
+  text-align: center;
+  margin: 3rem 0;
+}
+
+#encyclopedia {
+  margin-top: 2rem;
+}
+
+.main-item, .sub-item, .sub-sub-item {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  background-color: var(--colore-secondario);
+  box-shadow: var(--ombra-morbida);
+  backdrop-filter: var(--sfocatura);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: background-color 0.3s ease;
+}
+
+.title {
+  cursor: pointer;
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: background 0.3s ease;
+  position: relative;
+}
+
+.title:hover {
+  background-color: #e5e5ea;
+}
+
+.content {
+  margin-top: 1rem;
+  display: none;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.content.expanded {
+  display: block;
+}
+
+.control-btn {
+  background-color: var(--colore-accento);
+  color: white;
+  border: none;
+  padding: 0.7rem 1.3rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  transition: background 0.3s ease;
+}
+
+.control-btn:hover {
+  background-color: #0066cc;
+}
+
+#search-container {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+}
+
+.highlight {
+  background-color: var(--colore-evidenziato);
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  font-weight: bold;
+  box-shadow: inset 0 0 0 1px #ffcc00;
+}
+
+.modifica-input {
+  flex: 1;
+  font-size: 1rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--colore-contorno);
+  border-radius: 0.7rem;
+  margin-right: 0.6rem;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--colore-contorno);
+  margin: 3rem 0;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive migliorato */
+@media (max-width: 768px) {
+  #menu-bar, #search-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  select, input[type="text"], button {
+    width: 100%;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --colore-primario: #ffffff;
+    --colore-secondario: rgba(255, 255, 255, 0.75);
+    --colore-accento: #007aff;
+    --colore-testo: #1c1c1e;
+    --colore-contorno: #dcdcdc;
+    --colore-evidenziato: #ffcc00;
+    --ombra-morbida: 0 40px 80px rgba(0, 0, 0, 0.1);
+    --sfondo-vetro: rgba(255, 255, 255, 0.85);
+    --sfocatura: blur(25px);
+    --font-base: -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --bg-body: linear-gradient(180deg, #ffffff 0%, #f2f2f7 100%);
+    --colore-box: #ffffff;
+  }
+
+  body.dark-mode {
+    --colore-primario: #121214;
+    --colore-secondario: rgba(18, 18, 20, 0.75);
+    --colore-accento: #0a84ff;
+    --colore-testo: #e6e6eb;
+    --colore-contorno: #3a3a3c;
+    --colore-evidenziato: #ffd60a;
+    --sfondo-vetro: rgba(28, 28, 30, 0.85);
+    --ombra-morbida: 0 40px 80px rgba(0, 0, 0, 0.5);
+    --bg-body: linear-gradient(180deg, #121214 0%, #1c1c1e 100%);
+    --colore-box: #1c1c1e;
+  }
+
+  body.dark-mode .control-btn {
+    background-color: var(--colore-accento) !important;
+    color: white !important;
+  }
+
+  .title:hover {
+    background-color: #a0a0fd;
+  }
+
+  .highlight {
+    background-color: #ffd60a;
+    box-shadow: inset 0 0 0 1px #ffd60a;
+  }
+}
+
