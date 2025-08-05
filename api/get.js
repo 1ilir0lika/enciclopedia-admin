@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).send('Method not allowed');
   }
 
   try {
@@ -10,31 +10,18 @@ export default async function handler(req, res) {
       },
     });
 
-    const raw = await response.text();
+    const { result } = await response.json(); // Upstash risponde con: { result: "..." }
 
-    // Per debug — logga sempre la risposta grezza
-    console.log("RAW RESPONSE FROM UPSTASH:", raw);
-
-    let html = "";
-
-    try {
-      const parsed = JSON.parse(raw);
-      html = parsed.result || "";
-    } catch (err) {
-      console.warn("JSON parse failed, falling back to raw text");
-      html = raw;
-    }
-
-    if (!html) {
-      console.warn("No content found in Redis");
-      return res.status(404).send("No content saved.");
+    if (!result) {
+      console.warn("Redis is empty");
+      return res.status(404).send('No content');
     }
 
     res.setHeader('Content-Type', 'text/html');
-    res.status(200).send(html);
+    return res.status(200).send(result);
 
   } catch (error) {
-    console.error("Unexpected error:", error);
-    res.status(500).send("Server error");
+    console.error("GET ERROR:", error);
+    return res.status(500).send('Internal Server Error');
   }
 }
