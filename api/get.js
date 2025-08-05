@@ -3,23 +3,38 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const response = await fetch(`${process.env.UPSTASH_REDIS_REST_URL}/get/encyclopedia`, {
-    headers: {
-      Authorization: `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}`,
-    },
-  });
-
-  const text = await response.text();
-
-  let html = "";
   try {
-    const data = JSON.parse(text);
-    html = data.result || "";
-  } catch {
-    html = text;
-  }
+    const response = await fetch(`${process.env.UPSTASH_REDIS_REST_URL}/get/encyclopedia`, {
+      headers: {
+        Authorization: `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}`,
+      },
+    });
 
-  // Imposta il tipo MIME per restituire HTML puro
-  res.setHeader('Content-Type', 'text/html');
-  res.status(200).send(html);
+    const raw = await response.text();
+
+    // Per debug — logga sempre la risposta grezza
+    console.log("RAW RESPONSE FROM UPSTASH:", raw);
+
+    let html = "";
+
+    try {
+      const parsed = JSON.parse(raw);
+      html = parsed.result || "";
+    } catch (err) {
+      console.warn("JSON parse failed, falling back to raw text");
+      html = raw;
+    }
+
+    if (!html) {
+      console.warn("No content found in Redis");
+      return res.status(404).send("No content saved.");
+    }
+
+    res.setHeader('Content-Type', 'text/html');
+    res.status(200).send(html);
+
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    res.status(500).send("Server error");
+  }
 }
