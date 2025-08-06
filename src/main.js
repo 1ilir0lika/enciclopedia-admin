@@ -7,12 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const addMainBtn = document.getElementById("add-main");
   const saveBtn = document.getElementById("save");
   const loadBtn = document.getElementById("load");
-  const actionSelect = document.getElementById("action-select");
-  const actionConfirmBtn = document.getElementById("action-confirm");
 
-  let selectedItem = null;
-
-  // Crea elemento HTML con classe e testo opzionale
+  // Utilità: crea elemento HTML
   function createElement(tag, className, textContent = '') {
     const el = document.createElement(tag);
     if (className) el.className = className;
@@ -20,14 +16,14 @@ document.addEventListener('DOMContentLoaded', () => {
     return el;
   }
 
-  // Toggle show/hide content
+  // Toggle visibilità contenuto
   function attachToggle(title, content) {
     title.addEventListener('click', () => {
       content.style.display = content.style.display === 'none' ? 'block' : 'none';
     });
   }
 
-  // Crea controlli (es. aggiungi sub, sub-sub)
+  // Controlli per ogni livello
   function createControls(titleEl, contentEl, level) {
     const controls = createElement('div', 'controls');
 
@@ -77,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
     titleEl.appendChild(controls);
   }
 
-  // 🔼 Titolo principale
   function createMainItem(text) {
     const item = createElement('div', 'main-item');
     const title = createElement('div', 'title');
@@ -90,7 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return item;
   }
 
-  // 🔼 Sottotitolo
   function createSubItem(text) {
     const item = createElement('div', 'sub-item');
     const title = createElement('div', 'title');
@@ -103,7 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return item;
   }
 
-  // 🔼 Sotto-sottotitolo + descrizione
   function createSubSubItem(text) {
     const item = createElement('div', 'sub-sub-item');
     const title = createElement('div', 'title');
@@ -114,40 +107,76 @@ document.addEventListener('DOMContentLoaded', () => {
     return item;
   }
 
-  // 🔼 Aggiungi descrizione
   function addDescriptionInput(titleEl, item) {
-    const inputDesc = createElement('input', 'description-input');
-    inputDesc.placeholder = 'Aggiungi una descrizione...';
-    inputDesc.type = 'text';
+    const input = createElement('input', 'description-input');
+    input.placeholder = 'Aggiungi una descrizione...';
+    input.type = 'text';
 
     const okBtn = createElement('button', 'ok-btn', '✔️ OK');
 
-    titleEl.appendChild(inputDesc);
+    titleEl.appendChild(input);
     titleEl.appendChild(okBtn);
-    inputDesc.focus();
+    input.focus();
 
     okBtn.addEventListener('click', () => {
-      const description = inputDesc.value.trim();
-      if (description) {
-        const descSpan = createElement('span', 'description', description);
-        titleEl.appendChild(descSpan);
-        salvaDescrizione(description, item);
+      const desc = input.value.trim();
+      if (desc) {
+        const span = createElement('span', 'description', desc);
+        titleEl.appendChild(span);
+        salvaDescrizione(desc, item);
         salvaAlbero();
       }
-      inputDesc.remove();
+      input.remove();
       okBtn.remove();
     });
   }
 
-  // 🔼 Salva descrizione
   function salvaDescrizione(text, item) {
-    const itemId = item.querySelector('.title').textContent.trim();
+    const key = item.querySelector('.title').textContent.trim();
     const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
-    stored[itemId] = text;
+    stored[key] = text;
     localStorage.setItem('descrizioni', JSON.stringify(stored));
   }
 
-  // 🔼 Carica salvataggio da Redis
+  function salvaAlbero() {
+    localStorage.setItem("encyclopediaTree", encyclopedia.innerHTML);
+  }
+
+  function reinitTree() {
+    const mainItems = encyclopedia.querySelectorAll('.main-item');
+    mainItems.forEach(main => {
+      const title = main.querySelector('.title');
+      const content = main.querySelector('.content');
+      attachToggle(title, content);
+      createControls(title, content, 0);
+
+      const subItems = main.querySelectorAll('.sub-item');
+      subItems.forEach(sub => {
+        const subTitle = sub.querySelector('.title');
+        const subContent = sub.querySelector('.content');
+        attachToggle(subTitle, subContent);
+        createControls(subTitle, subContent, 1);
+
+        const subSubItems = sub.querySelectorAll('.sub-sub-item');
+        subSubItems.forEach(subSub => {
+          const subSubTitle = subSub.querySelector('.title');
+          createControls(subSubTitle, null, 2);
+
+          const key = subSubTitle.textContent.trim();
+          const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
+          const desc = stored[key];
+          if (desc) {
+            const span = createElement('span', 'description', desc);
+            subSubTitle.appendChild(span);
+          } else {
+            addDescriptionInput(subSubTitle, subSub);
+          }
+        });
+      });
+    });
+  }
+
+  // Carica da Redis
   loadBtn.addEventListener("click", async () => {
     try {
       const response = await fetch("/api/get");
@@ -159,9 +188,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 🔼 Salva su Redis
+  // Salva su Redis
   saveBtn.addEventListener("click", async () => {
-    const html = encyclopedia.innerHTML;
     try {
       const response = await fetch("/api/set", {
         method: "POST",
@@ -169,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Content-Type": "application/json",
           Authorization: "Bearer admin",
         },
-        body: JSON.stringify({ html }),
+        body: JSON.stringify({ html: encyclopedia.innerHTML }),
       });
       const result = await response.json();
       if (response.ok) {
@@ -182,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 🔼 Aggiungi nuovo titolo principale
+  // Aggiungi titolo principale
   addMainBtn.addEventListener('click', () => {
     const title = prompt('Titolo principale:');
     if (title) {
@@ -190,43 +218,4 @@ document.addEventListener('DOMContentLoaded', () => {
       salvaAlbero();
     }
   });
-
-  // 🔼 Salva struttura su localStorage
-  function salvaAlbero() {
-    localStorage.setItem("encyclopediaTree", encyclopedia.innerHTML);
-  }
-function reinitTree() {
-  const mainItems = encyclopedia.querySelectorAll('.main-item');
-  mainItems.forEach(main => {
-    const title = main.querySelector('.title');
-    const content = main.querySelector('.content');
-    attachToggle(title, content);
-    createControls(title, content, 0);
-
-    const subItems = main.querySelectorAll('.sub-item');
-    subItems.forEach(sub => {
-      const subTitle = sub.querySelector('.title');
-      const subContent = sub.querySelector('.content');
-      attachToggle(subTitle, subContent);
-      createControls(subTitle, subContent, 1);
-
-      const subSubItems = sub.querySelectorAll('.sub-sub-item');
-      subSubItems.forEach(subSub => {
-        const subSubTitle = subSub.querySelector('.title');
-        createControls(subSubTitle, null, 2);
-
-        // Ricrea descrizione da localStorage
-        const textKey = subSubTitle.textContent.trim();
-        const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
-        const desc = stored[textKey];
-        if (desc) {
-          const span = createElement('span', 'description', desc);
-          subSubTitle.appendChild(span);
-        } else {
-          addDescriptionInput(subSubTitle, subSub);
-        }
-      });
-    });
-  });
-}
 });
