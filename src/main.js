@@ -1,108 +1,197 @@
-const encyclopedia = document.getElementById("encyclopedia");
-const addMainBtn = document.getElementById("add-main");
-const saveBtn = document.getElementById("save");
-const loadBtn = document.getElementById("load");
-const toggleThemeBtn = document.getElementById("toggle-theme");
+import { setupThemeToggle } from './ui.js';
 
-const actionSelect = document.getElementById("action-select");
-const actionConfirmBtn = document.getElementById("action-confirm");
+document.addEventListener('DOMContentLoaded', () => {
+  setupThemeToggle();
 
-let selectedParagraph = null;
+  const encyclopedia = document.getElementById("encyclopedia");
+  const addMainBtn = document.getElementById("add-main");
+  const saveBtn = document.getElementById("save");
+  const loadBtn = document.getElementById("load");
+  const actionSelect = document.getElementById("action-select");
+  const actionConfirmBtn = document.getElementById("action-confirm");
 
-// Tema chiaro/scuro
-toggleThemeBtn.addEventListener("click", () => {
-  document.body.classList.toggle("dark-theme");
-});
+  let selectedItem = null;
 
-// Aggiungi nuovo paragrafo
-addMainBtn.addEventListener("click", () => {
-  const para = document.createElement("p");
-  para.contentEditable = true;
-  para.className = "editable-paragraph";
-  para.textContent = "Scrivi qui...";
-  encyclopedia.appendChild(para);
-  setupParagraphEvents(para);
-  para.focus();
-});
+  // Crea elemento HTML con classe e testo opzionale
+  function createElement(tag, className, textContent = '') {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    if (textContent) el.textContent = textContent;
+    return el;
+  }
 
-// Salva su Redis
-saveBtn.addEventListener("click", async () => {
-  const html = encyclopedia.innerHTML;
-
-  try {
-    const response = await fetch("/api/set", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer admin", // Cambia se usi un token diverso
-      },
-      body: JSON.stringify({ html }),
+  // Toggle show/hide content
+  function attachToggle(title, content) {
+    title.addEventListener('click', () => {
+      content.style.display = content.style.display === 'none' ? 'block' : 'none';
     });
+  }
 
-    const result = await response.json();
-    if (response.ok) {
-      alert("✅ Salvato con successo!");
-    } else {
-      throw new Error(result.error || "Errore salvataggio");
+  // Crea controlli (es. aggiungi sub, sub-sub)
+  function createControls(titleEl, contentEl, level) {
+    const controls = createElement('div', 'controls');
+
+    if (level === 0) {
+      const addSub = createElement('button', 'add-btn', '+ Sub');
+      addSub.addEventListener('click', () => {
+        const text = prompt('Titolo sottosezione:');
+        if (text) {
+          const sub = createSubItem(text);
+          contentEl.appendChild(sub);
+          salvaAlbero();
+        }
+      });
+      controls.appendChild(addSub);
     }
-  } catch (err) {
-    alert("❌ Errore durante il salvataggio: " + err.message);
-  }
-});
 
-//carica da redis
-loadBtn.addEventListener("click", async () => {
-  try {
-    const response = await fetch("/api/get");
-    const data = await response.json(); // ✅ decodifica JSON
-    console.log(data); // debug
-    encyclopedia.innerHTML = data.html || ""; // ✅ inserisci il contenuto HTML
-    makeAllParagraphsEditable();
-  } catch (err) {
-    alert("❌ Errore durante il caricamento: " + err.message);
-  }
-});
+    if (level === 1) {
+      const addSubSub = createElement('button', 'add-btn', '+ Sub-Sub');
+      addSubSub.addEventListener('click', () => {
+        const text = prompt('Sotto sotto titolo:');
+        if (text) {
+          const subSub = createSubSubItem(text);
+          contentEl.appendChild(subSub);
+          salvaAlbero();
+        }
+      });
+      controls.appendChild(addSubSub);
+    }
 
+    const delBtn = createElement('button', 'delete-btn', '🗑️');
+    delBtn.addEventListener('click', () => {
+      titleEl.parentElement.remove();
+      salvaAlbero();
+    });
+    controls.appendChild(delBtn);
 
+    const editBtn = createElement('button', 'edit-btn', '✏️');
+    editBtn.addEventListener('click', () => {
+      const newTitle = prompt('Modifica titolo:', titleEl.firstChild.textContent);
+      if (newTitle) {
+        titleEl.firstChild.textContent = newTitle;
+        salvaAlbero();
+      }
+    });
+    controls.appendChild(editBtn);
 
-// Rende ogni paragrafo esistente editabile e selezionabile
-function makeAllParagraphsEditable() {
-  const paragraphs = encyclopedia.querySelectorAll("p");
-  paragraphs.forEach(setupParagraphEvents);
-}
-
-// Aggiunge eventi di modifica e selezione
-function setupParagraphEvents(p) {
-  p.contentEditable = true;
-  p.classList.add("editable-paragraph");
-  p.addEventListener("click", () => selectParagraph(p));
-}
-
-// Gestione selezione
-function selectParagraph(p) {
-  if (selectedParagraph) {
-    selectedParagraph.classList.remove("selected");
-  }
-  selectedParagraph = p;
-  p.classList.add("selected");
-  actionConfirmBtn.style.display = "inline-block";
-}
-
-// Conferma azione dal menu (es. elimina)
-actionConfirmBtn.addEventListener("click", () => {
-  const action = actionSelect.value;
-  if (!action || !selectedParagraph) return;
-
-  if (action === "elimina") {
-    selectedParagraph.remove();
+    titleEl.appendChild(controls);
   }
 
-  if (action === "modifica") {
-    selectedParagraph.focus();
+  // 🔼 Titolo principale
+  function createMainItem(text) {
+    const item = createElement('div', 'main-item');
+    const title = createElement('div', 'title');
+    title.appendChild(createElement('span', '', text));
+    const content = createElement('div', 'content');
+    attachToggle(title, content);
+    createControls(title, content, 0);
+    item.appendChild(title);
+    item.appendChild(content);
+    return item;
   }
 
-  selectedParagraph.classList.remove("selected");
-  selectedParagraph = null;
-  actionSelect.value = "";
-  actionConfirmBtn.style.display = "none";
+  // 🔼 Sottotitolo
+  function createSubItem(text) {
+    const item = createElement('div', 'sub-item');
+    const title = createElement('div', 'title');
+    title.appendChild(createElement('span', '', text));
+    const content = createElement('div', 'content');
+    attachToggle(title, content);
+    createControls(title, content, 1);
+    item.appendChild(title);
+    item.appendChild(content);
+    return item;
+  }
+
+  // 🔼 Sotto-sottotitolo + descrizione
+  function createSubSubItem(text) {
+    const item = createElement('div', 'sub-sub-item');
+    const title = createElement('div', 'title');
+    title.appendChild(createElement('span', '', text));
+    createControls(title, null, 2);
+    addDescriptionInput(title, item);
+    item.appendChild(title);
+    return item;
+  }
+
+  // 🔼 Aggiungi descrizione
+  function addDescriptionInput(titleEl, item) {
+    const inputDesc = createElement('input', 'description-input');
+    inputDesc.placeholder = 'Aggiungi una descrizione...';
+    inputDesc.type = 'text';
+
+    const okBtn = createElement('button', 'ok-btn', '✔️ OK');
+
+    titleEl.appendChild(inputDesc);
+    titleEl.appendChild(okBtn);
+    inputDesc.focus();
+
+    okBtn.addEventListener('click', () => {
+      const description = inputDesc.value.trim();
+      if (description) {
+        const descSpan = createElement('span', 'description', description);
+        titleEl.appendChild(descSpan);
+        salvaDescrizione(description, item);
+        salvaAlbero();
+      }
+      inputDesc.remove();
+      okBtn.remove();
+    });
+  }
+
+  // 🔼 Salva descrizione
+  function salvaDescrizione(text, item) {
+    const itemId = item.querySelector('.title').textContent.trim();
+    const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
+    stored[itemId] = text;
+    localStorage.setItem('descrizioni', JSON.stringify(stored));
+  }
+
+  // 🔼 Carica salvataggio da Redis
+  loadBtn.addEventListener("click", async () => {
+    try {
+      const response = await fetch("/api/get");
+      const data = await response.json();
+      encyclopedia.innerHTML = data.html || "";
+    } catch (err) {
+      alert("❌ Errore durante il caricamento: " + err.message);
+    }
+  });
+
+  // 🔼 Salva su Redis
+  saveBtn.addEventListener("click", async () => {
+    const html = encyclopedia.innerHTML;
+    try {
+      const response = await fetch("/api/set", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer admin",
+        },
+        body: JSON.stringify({ html }),
+      });
+      const result = await response.json();
+      if (response.ok) {
+        alert("✅ Salvato con successo!");
+      } else {
+        throw new Error(result.error || "Errore salvataggio");
+      }
+    } catch (err) {
+      alert("❌ Errore durante il salvataggio: " + err.message);
+    }
+  });
+
+  // 🔼 Aggiungi nuovo titolo principale
+  addMainBtn.addEventListener('click', () => {
+    const title = prompt('Titolo principale:');
+    if (title) {
+      encyclopedia.appendChild(createMainItem(title));
+      salvaAlbero();
+    }
+  });
+
+  // 🔼 Salva struttura su localStorage
+  function salvaAlbero() {
+    localStorage.setItem("encyclopediaTree", encyclopedia.innerHTML);
+  }
 });
