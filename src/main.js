@@ -50,18 +50,19 @@ saveBtn.addEventListener("click", async () => {
   }
 });
 
-// Carica da Redis
+//carica da redis
 loadBtn.addEventListener("click", async () => {
   try {
     const response = await fetch("/api/get");
-    const { html } = await response.text();
-
+    const html = await response.text(); // ⬅️ usa text()!
+    console.log(response.json())
     encyclopedia.innerHTML = html || "";
     makeAllParagraphsEditable();
   } catch (err) {
     alert("❌ Errore durante il caricamento: " + err.message);
   }
 });
+
 
 // Rende ogni paragrafo esistente editabile e selezionabile
 function makeAllParagraphsEditable() {
