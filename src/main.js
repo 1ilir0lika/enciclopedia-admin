@@ -27,55 +27,43 @@ function attachToggle(title, content) {
   title.dataset.toggleAttached = 'true';
 }
 
-
-
 function createControls(titleEl, contentEl, level) {
-  // ✅ Rimuove un eventuale blocco di controlli esistente
+  // ✅ Rimuove controlli esistenti
   const existingControls = titleEl.querySelector('.controls');
   if (existingControls) existingControls.remove();
 
   const controls = createElement('div', 'controls');
 
-  // ✅ Aggiungi solo se ha contenuto e livello è 0 (main)
-  if (level === 0 && contentEl) {
-    const addSub = createElement('button', 'add-btn', '+ Sub');
-    addSub.addEventListener('click', () => {
-      const text = prompt('Titolo sottosezione:');
-      if (text) {
-        const sub = createSubItem(text);
-        contentEl.appendChild(sub);
-        salvaAlbero();
-      }
+  // 🔁 Bottone generico per aggiungere elementi figli
+  if (contentEl) {
+    const addBtn = createElement('button', 'control-btn', '+ Aggiungi');
+    addBtn.addEventListener('click', () => {
+      const text = prompt('Titolo:');
+      if (!text) return;
+
+      let newItem;
+      if (level === 0) newItem = createSubItem(text);
+      else if (level === 1) newItem = createSubSubItem(text);
+      else return;
+
+      contentEl.appendChild(newItem);
+      salvaAlbero();
     });
-    controls.appendChild(addSub);
+    controls.appendChild(addBtn);
   }
 
-  // ✅ Se è sub-item (livello 1)
-  if (level === 1 && contentEl) {
-    const addSubSub = createElement('button', 'add-btn', '+ Sub-Sub');
-    addSubSub.addEventListener('click', () => {
-      const text = prompt('Sotto sotto titolo:');
-      if (text) {
-        const subSub = createSubSubItem(text);
-        contentEl.appendChild(subSub);
-        salvaAlbero();
-      }
-    });
-    controls.appendChild(addSubSub);
-  }
-
-  // ✅ Bottone Elimina
-  const delBtn = createElement('button', 'delete-btn', '🗑️');
+  // 🗑️ Elimina
+  const delBtn = createElement('button', 'control-btn', '🗑️');
   delBtn.addEventListener('click', () => {
     titleEl.parentElement.remove();
     salvaAlbero();
   });
   controls.appendChild(delBtn);
 
-  // ✅ Bottone Modifica
-  const editBtn = createElement('button', 'edit-btn', '✏️');
+  // ✏️ Modifica
+  const editBtn = createElement('button', 'control-btn', '✏️');
   editBtn.addEventListener('click', () => {
-    const titleSpan = titleEl.querySelector('span'); // ✅ seleziona solo il <span> del titolo
+    const titleSpan = titleEl.querySelector('span');
     const currentText = titleSpan ? titleSpan.textContent : '';
     const newTitle = prompt('Modifica titolo:', currentText);
     if (newTitle && titleSpan) {
@@ -85,10 +73,8 @@ function createControls(titleEl, contentEl, level) {
   });
   controls.appendChild(editBtn);
 
-  // ✅ Aggiunge solo una volta
   titleEl.appendChild(controls);
 }
-
   function createMainItem(text) {
     const item = createElement('div', 'main-item');
     const title = createElement('div', 'title');
