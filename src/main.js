@@ -153,6 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const response = await fetch("/api/get");
       const data = await response.json();
       encyclopedia.innerHTML = data.html || "";
+      reinitTree();
     } catch (err) {
       alert("❌ Errore durante il caricamento: " + err.message);
     }
@@ -195,3 +196,35 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem("encyclopediaTree", encyclopedia.innerHTML);
   }
 });
+function reinitTree() {
+  const mainItems = encyclopedia.querySelectorAll('.main-item');
+
+  mainItems.forEach(main => {
+    const title = main.querySelector('.title');
+    const content = main.querySelector('.content');
+    attachToggle(title, content);
+    createControls(title, content, 0);
+
+    const subItems = main.querySelectorAll('.sub-item');
+    subItems.forEach(sub => {
+      const subTitle = sub.querySelector('.title');
+      const subContent = sub.querySelector('.content');
+      attachToggle(subTitle, subContent);
+      createControls(subTitle, subContent, 1);
+    });
+
+    const subSubItems = main.querySelectorAll('.sub-sub-item');
+    subSubItems.forEach(subSub => {
+      const subSubTitle = subSub.querySelector('.title');
+      createControls(subSubTitle, null, 2);
+
+      // Ricarica descrizione da localStorage
+      const itemId = subSubTitle.textContent.trim();
+      const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
+      if (stored[itemId]) {
+        const descSpan = createElement('span', 'description', stored[itemId]);
+        subSubTitle.appendChild(descSpan);
+      }
+    });
+  });
+}
