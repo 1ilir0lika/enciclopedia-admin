@@ -18,25 +18,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Toggle visibilità contenuto
 function attachToggle(title, content) {
-  // Non aggiungere più listener se già esiste
-  if (title.dataset.toggleAttached === "true") return;
+  if (title.dataset.toggleAttached === 'true') return;
 
-  title.addEventListener("click", () => {
-    content.style.display = content.style.display === "none" ? "block" : "none";
+  title.addEventListener('click', () => {
+    content.style.display = content.style.display === 'none' ? 'block' : 'none';
   });
 
-  title.dataset.toggleAttached = "true";
+  title.dataset.toggleAttached = 'true';
 }
 
 
-  // Controlli per ogni livello
+
 function createControls(titleEl, contentEl, level) {
-  // ❌ Rimuovi ogni .controls prima di crearne uno nuovo
-  const existingControls = titleEl.querySelectorAll('.controls');
-  existingControls.forEach(c => c.remove());
+  // ✅ Rimuove un eventuale blocco di controlli esistente
+  const existingControls = titleEl.querySelector('.controls');
+  if (existingControls) existingControls.remove();
 
   const controls = createElement('div', 'controls');
 
+  // ✅ Aggiungi solo se ha contenuto e livello è 0 (main)
   if (level === 0 && contentEl) {
     const addSub = createElement('button', 'add-btn', '+ Sub');
     addSub.addEventListener('click', () => {
@@ -50,6 +50,7 @@ function createControls(titleEl, contentEl, level) {
     controls.appendChild(addSub);
   }
 
+  // ✅ Se è sub-item (livello 1)
   if (level === 1 && contentEl) {
     const addSubSub = createElement('button', 'add-btn', '+ Sub-Sub');
     addSubSub.addEventListener('click', () => {
@@ -63,6 +64,7 @@ function createControls(titleEl, contentEl, level) {
     controls.appendChild(addSubSub);
   }
 
+  // ✅ Bottone Elimina
   const delBtn = createElement('button', 'delete-btn', '🗑️');
   delBtn.addEventListener('click', () => {
     titleEl.parentElement.remove();
@@ -70,20 +72,22 @@ function createControls(titleEl, contentEl, level) {
   });
   controls.appendChild(delBtn);
 
+  // ✅ Bottone Modifica
   const editBtn = createElement('button', 'edit-btn', '✏️');
   editBtn.addEventListener('click', () => {
-    const newTitle = prompt('Modifica titolo:', titleEl.firstChild.textContent);
-    if (newTitle) {
-      titleEl.firstChild.textContent = newTitle;
+    const titleSpan = titleEl.querySelector('span'); // ✅ seleziona solo il <span> del titolo
+    const currentText = titleSpan ? titleSpan.textContent : '';
+    const newTitle = prompt('Modifica titolo:', currentText);
+    if (newTitle && titleSpan) {
+      titleSpan.textContent = newTitle;
       salvaAlbero();
     }
   });
   controls.appendChild(editBtn);
 
+  // ✅ Aggiunge solo una volta
   titleEl.appendChild(controls);
 }
-
-
 
   function createMainItem(text) {
     const item = createElement('div', 'main-item');
@@ -154,39 +158,47 @@ function createControls(titleEl, contentEl, level) {
     localStorage.setItem("encyclopediaTree", encyclopedia.innerHTML);
   }
 
-  function reinitTree() {
-    const mainItems = encyclopedia.querySelectorAll('.main-item');
-    mainItems.forEach(main => {
-      const title = main.querySelector('.title');
-      const content = main.querySelector('.content');
+function reinitTree() {
+  const mainItems = encyclopedia.querySelectorAll('.main-item');
+  mainItems.forEach(main => {
+    const title = main.querySelector('.title');
+    const content = main.querySelector('.content');
+    if (title && content) {
       attachToggle(title, content);
       createControls(title, content, 0);
+    }
 
-      const subItems = main.querySelectorAll('.sub-item');
-      subItems.forEach(sub => {
-        const subTitle = sub.querySelector('.title');
-        const subContent = sub.querySelector('.content');
+    const subItems = main.querySelectorAll('.sub-item');
+    subItems.forEach(sub => {
+      const subTitle = sub.querySelector('.title');
+      const subContent = sub.querySelector('.content');
+      if (subTitle && subContent) {
         attachToggle(subTitle, subContent);
         createControls(subTitle, subContent, 1);
+      }
 
-        const subSubItems = sub.querySelectorAll('.sub-sub-item');
-        subSubItems.forEach(subSub => {
-          const subSubTitle = subSub.querySelector('.title');
+      const subSubItems = sub.querySelectorAll('.sub-sub-item');
+      subSubItems.forEach(subSub => {
+        const subSubTitle = subSub.querySelector('.title');
+        if (subSubTitle) {
           createControls(subSubTitle, null, 2);
 
           const key = subSubTitle.textContent.trim();
           const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
           const desc = stored[key];
-          if (desc) {
+
+          if (desc && !subSubTitle.querySelector('.description')) {
             const span = createElement('span', 'description', desc);
             subSubTitle.appendChild(span);
-          } else {
+          } else if (!desc) {
             addDescriptionInput(subSubTitle, subSub);
           }
-        });
+        }
       });
     });
-  }
+  });
+}
+
 
   // Carica da Redis
   loadBtn.addEventListener("click", async () => {
