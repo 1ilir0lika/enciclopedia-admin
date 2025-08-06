@@ -25,53 +25,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Controlli per ogni livello
   function createControls(titleEl, contentEl, level) {
-    const controls = createElement('div', 'controls');
+  // 🔁 Rimuove i vecchi controlli se esistono
+  const oldControls = titleEl.querySelector('.controls');
+  if (oldControls) oldControls.remove();
 
-    if (level === 0) {
-      const addSub = createElement('button', 'add-btn', '+ Sub');
-      addSub.addEventListener('click', () => {
-        const text = prompt('Titolo sottosezione:');
-        if (text) {
-          const sub = createSubItem(text);
-          contentEl.appendChild(sub);
-          salvaAlbero();
-        }
-      });
-      controls.appendChild(addSub);
-    }
+  const controls = createElement('div', 'controls');
 
-    if (level === 1) {
-      const addSubSub = createElement('button', 'add-btn', '+ Sub-Sub');
-      addSubSub.addEventListener('click', () => {
-        const text = prompt('Sotto sotto titolo:');
-        if (text) {
-          const subSub = createSubSubItem(text);
-          contentEl.appendChild(subSub);
-          salvaAlbero();
-        }
-      });
-      controls.appendChild(addSubSub);
-    }
-
-    const delBtn = createElement('button', 'delete-btn', '🗑️');
-    delBtn.addEventListener('click', () => {
-      titleEl.parentElement.remove();
-      salvaAlbero();
-    });
-    controls.appendChild(delBtn);
-
-    const editBtn = createElement('button', 'edit-btn', '✏️');
-    editBtn.addEventListener('click', () => {
-      const newTitle = prompt('Modifica titolo:', titleEl.firstChild.textContent);
-      if (newTitle) {
-        titleEl.firstChild.textContent = newTitle;
+  if (level === 0) {
+    const addSub = createElement('button', 'add-btn', '+ Sub');
+    addSub.addEventListener('click', () => {
+      const text = prompt('Titolo sottosezione:');
+      if (text) {
+        const sub = createSubItem(text);
+        contentEl.appendChild(sub);
         salvaAlbero();
       }
     });
-    controls.appendChild(editBtn);
-
-    titleEl.appendChild(controls);
+    controls.appendChild(addSub);
   }
+
+  if (level === 1) {
+    const addSubSub = createElement('button', 'add-btn', '+ Sub-Sub');
+    addSubSub.addEventListener('click', () => {
+      const text = prompt('Sotto sotto titolo:');
+      if (text) {
+        const subSub = createSubSubItem(text);
+        contentEl.appendChild(subSub);
+        salvaAlbero();
+      }
+    });
+    controls.appendChild(addSubSub);
+  }
+
+  const delBtn = createElement('button', 'delete-btn', '🗑️');
+  delBtn.addEventListener('click', () => {
+    titleEl.parentElement.remove();
+    salvaAlbero();
+  });
+  controls.appendChild(delBtn);
+
+  const editBtn = createElement('button', 'edit-btn', '✏️');
+  editBtn.addEventListener('click', () => {
+    const newTitle = prompt('Modifica titolo:', titleEl.firstChild.textContent);
+    if (newTitle) {
+      titleEl.firstChild.textContent = newTitle;
+      salvaAlbero();
+    }
+  });
+  controls.appendChild(editBtn);
+
+  titleEl.appendChild(controls);
+}
+
 
   function createMainItem(text) {
     const item = createElement('div', 'main-item');
