@@ -10,12 +10,22 @@ export default async function handler(req, res) {
       },
     });
 
-    const data = await response.json(); // Upstash risponde con { result: "stringa salvata" }
+    const data = await response.json(); // { result: "<html string>" }
 
-    const html = data?.result || "";
+    const raw = data?.result || "";
 
-    res.setHeader("Content-Type", "application/json"); // oppure text/html, vedi nota sotto
-    res.status(200).json({ html }); // JSON corretto per il client
+    let html;
+    try {
+      // 👇 se il contenuto è ancora stringificato tipo {"value":"..."}
+      const parsed = JSON.parse(raw);
+      html = parsed.value || "";
+    } catch (e) {
+      // 👇 altrimenti, è già una stringa HTML pura
+      html = raw;
+    }
+
+    res.setHeader("Content-Type", "application/json");
+    res.status(200).json({ html });
   } catch (error) {
     console.error("❌ Errore nel GET handler:", error);
     res.status(500).json({ error: "Errore nel recupero dei dati" });
