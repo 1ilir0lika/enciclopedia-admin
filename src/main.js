@@ -54,7 +54,7 @@ saveBtn.addEventListener("click", async () => {
 loadBtn.addEventListener("click", async () => {
   try {
     const response = await fetch("/api/get");
-    const { html } = await response.json();
+    const { html } = await response.text();
 
     encyclopedia.innerHTML = html || "";
     makeAllParagraphsEditable();
