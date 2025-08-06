@@ -18,14 +18,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Toggle visibilità contenuto
 function attachToggle(title, content) {
-  // Rimuove tutti i vecchi event listener clonando il nodo
-  const newTitle = title.cloneNode(true);
-  title.parentNode.replaceChild(newTitle, title);
+  // Non aggiungere più listener se già esiste
+  if (title.dataset.toggleAttached === "true") return;
 
-  newTitle.addEventListener('click', () => {
-    content.style.display = content.style.display === 'none' ? 'block' : 'none';
+  title.addEventListener("click", () => {
+    content.style.display = content.style.display === "none" ? "block" : "none";
   });
+
+  title.dataset.toggleAttached = "true";
 }
+
 
   // Controlli per ogni livello
 function createControls(titleEl, contentEl, level) {
