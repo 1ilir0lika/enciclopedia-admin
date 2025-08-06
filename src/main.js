@@ -17,21 +17,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Toggle visibilità contenuto
-  function attachToggle(title, content) {
-    title.addEventListener('click', () => {
-      content.style.display = content.style.display === 'none' ? 'block' : 'none';
-    });
-  }
+function attachToggle(title, content) {
+  // Rimuove tutti i vecchi event listener clonando il nodo
+  const newTitle = title.cloneNode(true);
+  title.parentNode.replaceChild(newTitle, title);
+
+  newTitle.addEventListener('click', () => {
+    content.style.display = content.style.display === 'none' ? 'block' : 'none';
+  });
+}
 
   // Controlli per ogni livello
-  function createControls(titleEl, contentEl, level) {
-  // 🔁 Rimuove i vecchi controlli se esistono
-  const oldControls = titleEl.querySelector('.controls');
-  if (oldControls) oldControls.remove();
+function createControls(titleEl, contentEl, level) {
+  // ❌ Rimuovi ogni .controls prima di crearne uno nuovo
+  const existingControls = titleEl.querySelectorAll('.controls');
+  existingControls.forEach(c => c.remove());
 
   const controls = createElement('div', 'controls');
 
-  if (level === 0) {
+  if (level === 0 && contentEl) {
     const addSub = createElement('button', 'add-btn', '+ Sub');
     addSub.addEventListener('click', () => {
       const text = prompt('Titolo sottosezione:');
@@ -44,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     controls.appendChild(addSub);
   }
 
-  if (level === 1) {
+  if (level === 1 && contentEl) {
     const addSubSub = createElement('button', 'add-btn', '+ Sub-Sub');
     addSubSub.addEventListener('click', () => {
       const text = prompt('Sotto sotto titolo:');
@@ -76,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   titleEl.appendChild(controls);
 }
+
 
 
   function createMainItem(text) {
