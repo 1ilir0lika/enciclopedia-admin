@@ -54,14 +54,15 @@ saveBtn.addEventListener("click", async () => {
 loadBtn.addEventListener("click", async () => {
   try {
     const response = await fetch("/api/get");
-    const html = await response.text(); // ⬅️ usa text()!
-    console.log(response.json())
-    encyclopedia.innerHTML = html || "";
+    const data = await response.json(); // ✅ decodifica JSON
+    console.log(data); // debug
+    encyclopedia.innerHTML = data.html || ""; // ✅ inserisci il contenuto HTML
     makeAllParagraphsEditable();
   } catch (err) {
     alert("❌ Errore durante il caricamento: " + err.message);
   }
 });
+
 
 
 // Rende ogni paragrafo esistente editabile e selezionabile
