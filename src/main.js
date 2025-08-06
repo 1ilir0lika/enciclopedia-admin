@@ -195,10 +195,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function salvaAlbero() {
     localStorage.setItem("encyclopediaTree", encyclopedia.innerHTML);
   }
-});
 function reinitTree() {
   const mainItems = encyclopedia.querySelectorAll('.main-item');
-
   mainItems.forEach(main => {
     const title = main.querySelector('.title');
     const content = main.querySelector('.content');
@@ -211,20 +209,24 @@ function reinitTree() {
       const subContent = sub.querySelector('.content');
       attachToggle(subTitle, subContent);
       createControls(subTitle, subContent, 1);
-    });
 
-    const subSubItems = main.querySelectorAll('.sub-sub-item');
-    subSubItems.forEach(subSub => {
-      const subSubTitle = subSub.querySelector('.title');
-      createControls(subSubTitle, null, 2);
+      const subSubItems = sub.querySelectorAll('.sub-sub-item');
+      subSubItems.forEach(subSub => {
+        const subSubTitle = subSub.querySelector('.title');
+        createControls(subSubTitle, null, 2);
 
-      // Ricarica descrizione da localStorage
-      const itemId = subSubTitle.textContent.trim();
-      const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
-      if (stored[itemId]) {
-        const descSpan = createElement('span', 'description', stored[itemId]);
-        subSubTitle.appendChild(descSpan);
-      }
+        // Ricrea descrizione da localStorage
+        const textKey = subSubTitle.textContent.trim();
+        const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
+        const desc = stored[textKey];
+        if (desc) {
+          const span = createElement('span', 'description', desc);
+          subSubTitle.appendChild(span);
+        } else {
+          addDescriptionInput(subSubTitle, subSub);
+        }
+      });
     });
   });
 }
+});
