@@ -82,17 +82,19 @@ document.addEventListener('DOMContentLoaded', () => {
     titleEl.appendChild(controls);
   }
 
-  function createMainItem(text) {
-    const item = createElement('div', 'main-item');
-    const title = createElement('div', 'title');
-    title.appendChild(createElement('span', '', text));
-    const content = createElement('div', 'content');
-    attachToggle(title, content);
-    createControls(title, content, 0);
-    item.appendChild(title);
-    item.appendChild(content);
-    return item;
-  }
+function createMainItem(text) {
+  const item = createElement('div', 'main-item');
+  const title = createElement('div', 'title');
+  title.appendChild(createElement('span', '', text));
+  const content = createElement('div', 'content');
+  content.style.display = 'block'; // ✅ make it visible immediately
+  attachToggle(title, content);
+  createControls(title, content, 0);
+  item.appendChild(title);
+  item.appendChild(content);
+  return item;
+}
+
 
   function createSubItem(text) {
     const item = createElement('div', 'sub-item');
