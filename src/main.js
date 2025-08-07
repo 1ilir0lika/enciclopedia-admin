@@ -6,10 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const saveBtn = document.getElementById("save");
   const loadBtn = document.getElementById("load");
   const toggleBtn = document.getElementById('toggle-theme');
-  // Applica il tema salvato
-  if (localStorage.getItem('tema') === 'scuro') {
-    document.body.classList.add('dark-mode');
-  }
   // Cambia tema al click
   toggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-mode');
