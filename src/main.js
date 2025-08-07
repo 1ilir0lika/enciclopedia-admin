@@ -216,8 +216,6 @@ function reinitTree() {
         }
       });
     });
-  });
-}
 
 
   // Carica da Redis
@@ -262,4 +260,3 @@ function reinitTree() {
       salvaAlbero();
     }
   });
-});
