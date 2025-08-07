@@ -26,16 +26,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Toggle visibilità contenuto
-  function attachToggle(title, content) {
-    if (!title || !content) return;
-    if (title.dataset.toggleAttached === 'true') return;
+function attachToggle(title, content) {
+  if (!title || !content) return;
 
-    title.addEventListener('click', () => {
-      content.style.display = content.style.display === 'none' ? 'block' : 'none';
-    });
+  if (title.dataset.toggleAttached === 'true') return;
 
-    title.dataset.toggleAttached = 'true';
-  }
+  // Always ensure content is initially visible for new items
+  content.style.display = content.style.display || 'block';
+
+  title.addEventListener('click', () => {
+    const currentDisplay = window.getComputedStyle(content).display;
+    content.style.display = currentDisplay === 'none' ? 'block' : 'none';
+  });
+
+  title.dataset.toggleAttached = 'true';
+}
+
 
   function createControls(titleEl, contentEl, level) {
     const existingControls = titleEl.querySelector('.controls');
