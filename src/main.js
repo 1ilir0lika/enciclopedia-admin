@@ -1,5 +1,6 @@
 import { setupThemeToggle } from './ui.js';
 
+setupThemeToggle();
 document.addEventListener('DOMContentLoaded', () => {
   setupThemeToggle();
 

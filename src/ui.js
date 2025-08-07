@@ -1,6 +1,6 @@
 // ui.js
 
-export function setupThemeToggle() {
+export default async function setupThemeToggle() {
   const toggleBtn = document.getElementById('toggle-theme');
   if (!toggleBtn) return;
 
