@@ -16,7 +16,10 @@
   --font-base: -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color-scheme: light dark;
 }
-
+.dark-mode {
+  background-color: #121212;
+  color: #ffffff;
+}
 body {
   margin: 0;
   font-family: var(--font-base);
