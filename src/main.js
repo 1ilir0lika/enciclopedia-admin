@@ -5,6 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const loadBtn = document.getElementById("load");
   const toggleBtn = document.getElementById('toggle-theme');
 
+   function chiudiTutti() {
+    document.querySelectorAll('.content.expanded').forEach(c => c.classList.remove('expanded'));
+    document.querySelectorAll('.title.expanded').forEach(t => t.classList.remove('expanded'));
+  }
+
   // Applica il tema salvato
   if (localStorage.getItem('tema') === 'scuro') {
     document.body.classList.add('dark-mode');
