@@ -160,45 +160,44 @@ function createMainItem(text) {
   }
 
 function reinitTree() {
-  // Step 1: Collapse all content blocks
-  encyclopedia.querySelectorAll('.content').forEach(content => {
-    content.style.display = 'none';
-  });
+  const mainItems = encyclopedia.querySelectorAll('.main-item');
 
-  // Step 2: Reattach toggles & controls to all levels
-  encyclopedia.querySelectorAll('.main-item').forEach(main => {
+  mainItems.forEach(main => {
     const mainTitle = main.querySelector(':scope > .title');
     const mainContent = main.querySelector(':scope > .content');
+
     attachToggle(mainTitle, mainContent);
     createControls(mainTitle, mainContent, 0);
 
-    mainContent.querySelectorAll(':scope > .sub-item').forEach(sub => {
+    const subItems = mainContent.querySelectorAll('.sub-item');
+    subItems.forEach(sub => {
       const subTitle = sub.querySelector(':scope > .title');
       const subContent = sub.querySelector(':scope > .content');
+
       attachToggle(subTitle, subContent);
       createControls(subTitle, subContent, 1);
 
-      subContent.querySelectorAll(':scope > .sub-sub-item').forEach(subSub => {
+      const subSubItems = subContent.querySelectorAll('.sub-sub-item');
+      subSubItems.forEach(subSub => {
         const subSubTitle = subSub.querySelector(':scope > .title');
-        attachToggle(subSubTitle, null); // Even if it has no content, for consistency
-        createControls(subSubTitle, null, 2);
+        if (subSubTitle) {
+          createControls(subSubTitle, null, 2);
 
-        // Restore description if available
-        const key = subSubTitle.textContent.trim();
-        const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
-        const desc = stored[key];
+          const key = subSubTitle.textContent.trim();
+          const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
+          const desc = stored[key];
 
-        if (desc && !subSubTitle.querySelector('.description')) {
-          const span = createElement('span', 'description', desc);
-          subSubTitle.appendChild(span);
-        } else if (!desc && !subSubTitle.querySelector('input')) {
-          addDescriptionInput(subSubTitle, subSub);
+          if (desc && !subSubTitle.querySelector('.description')) {
+            const span = createElement('span', 'description', desc);
+            subSubTitle.appendChild(span);
+          } else if (!desc && !subSubTitle.querySelector('input')) {
+            addDescriptionInput(subSubTitle, subSub);
+          }
         }
       });
     });
   });
 }
-
 
   // Carica da Redis
   loadBtn.addEventListener("click", async () => {
