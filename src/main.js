@@ -1,4 +1,4 @@
-import { setupThemeToggle } from './ui.js';
+import setupThemeToggle from './ui.js';
 
 setupThemeToggle();
 document.addEventListener('DOMContentLoaded', () => {
