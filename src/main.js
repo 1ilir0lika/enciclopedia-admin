@@ -7,11 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const loadBtn = document.getElementById("load");
   const toggleBtn = document.getElementById('toggle-theme');
   // Cambia tema al click
-  toggleBtn.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
-    const isDark = document.body.classList.contains('dark-mode');
-    localStorage.setItem('tema', isDark ? 'scuro' : 'chiaro');
-  });
+  //toggleBtn.addEventListener('click', () => {
+  //  document.body.classList.toggle('dark-mode');
+  //  const isDark = document.body.classList.contains('dark-mode');
+  //  localStorage.setItem('tema', isDark ? 'scuro' : 'chiaro');
+  //});
   // Utilità: crea elemento HTML
   function createElement(tag, className, textContent = '') {
     const el = document.createElement(tag);
