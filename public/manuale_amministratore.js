@@ -1,3 +1,4 @@
+import './style.css';
 function clearHighlights() {
   const marks = document.querySelectorAll("mark");
   marks.forEach(mark => {
