@@ -153,22 +153,49 @@ function createControls(titleEl, contentEl, level) {
 
 function reinitTree() {
   const mainItems = encyclopedia.querySelectorAll('.main-item');
+
   mainItems.forEach(main => {
-    const title = main.querySelector('.title');
-    const content = main.querySelector('.content');
+    const title = main.querySelector(':scope > .title');
+    const content = main.querySelector(':scope > .content');
+
     if (title && content) {
       attachToggle(title, content);
       createControls(title, content, 0);
     }
 
-    const subItems = main.querySelectorAll('.sub-item');
+    const subItems = content.querySelectorAll(':scope > .sub-item');
     subItems.forEach(sub => {
-      const subTitle = sub.querySelector('.title');
-      const subContent = sub.querySelector('.content');
+      const subTitle = sub.querySelector(':scope > .title');
+      const subContent = sub.querySelector(':scope > .content');
+
       if (subTitle && subContent) {
         attachToggle(subTitle, subContent);
         createControls(subTitle, subContent, 1);
       }
+
+      const subSubItems = subContent.querySelectorAll(':scope > .sub-sub-item');
+      subSubItems.forEach(subSub => {
+        const subSubTitle = subSub.querySelector(':scope > .title');
+
+        if (subSubTitle) {
+          createControls(subSubTitle, null, 2);
+
+          const key = subSubTitle.textContent.trim();
+          const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
+          const desc = stored[key];
+
+          if (desc && !subSubTitle.querySelector('.description')) {
+            const span = createElement('span', 'description', desc);
+            subSubTitle.appendChild(span);
+          } else if (!desc && !subSubTitle.querySelector('input')) {
+            addDescriptionInput(subSubTitle, subSub);
+          }
+        }
+      });
+    });
+  });
+}
+
 
       const subSubItems = sub.querySelectorAll('.sub-sub-item');
       subSubItems.forEach(subSub => {
