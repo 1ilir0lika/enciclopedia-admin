@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const addMainBtn = document.getElementById("add-main");
   const saveBtn = document.getElementById("save");
   const loadBtn = document.getElementById("load");
-  const toggleBtn = document.getElementById('toggle-theme');
+  //const toggleBtn = document.getElementById('toggle-theme');
   // Cambia tema al click
   //toggleBtn.addEventListener('click', () => {
   //  document.body.classList.toggle('dark-mode');
