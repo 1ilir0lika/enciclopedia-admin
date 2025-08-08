@@ -38,17 +38,16 @@ document.addEventListener('DOMContentLoaded', () => {
 function attachToggle(title, content) {
   if (!title || !content) return;
 
-  if (title.dataset.toggleAttached === 'true') return;
+  // Remove any existing toggle listener if reinitializing
+  const newTitle = title.cloneNode(true);
+  title.parentNode.replaceChild(newTitle, title);
 
-  // Always ensure content is initially visible for new items
-  content.style.display = content.style.display || 'block';
-
-  title.addEventListener('click', () => {
+  newTitle.addEventListener('click', () => {
     const currentDisplay = window.getComputedStyle(content).display;
     content.style.display = currentDisplay === 'none' ? 'block' : 'none';
   });
 
-  title.dataset.toggleAttached = 'true';
+  newTitle.dataset.toggleAttached = 'true';
 }
 
 
