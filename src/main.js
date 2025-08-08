@@ -4,6 +4,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const saveBtn = document.getElementById("save");
   const loadBtn = document.getElementById("load");
   const toggleBtn = document.getElementById('toggle-theme');
+  const inputRicerca = document.getElementById('search-input');
+  const btnRicerca = document.getElementById('search-btn');
+  const btnClear = document.getElementById('clear-btn');
+
+  // chiudi tutto(dopo chiusura ricerca)
+  function chiudiTutti() {
+    document.querySelectorAll('.content.expanded').forEach(c => c.classList.remove('expanded'));
+    document.querySelectorAll('.title.expanded').forEach(t => t.classList.remove('expanded'));
+  }
 
   // Applica il tema salvato
   if (localStorage.getItem('tema') === 'scuro') {
@@ -241,4 +250,38 @@ function reinitTree() {
       salvaAlbero();
     }
   });
+
+    //Ricerca
+  btnRicerca.addEventListener('click', () => {
+    chiudiTutti();
+    const query = inputRicerca.value.trim().toLowerCase();
+    if (!query) return;
+    document.querySelectorAll('.title').forEach(t => {
+      const text = t.firstChild.textContent.toLowerCase();
+      if (text.includes(query)) {
+        t.classList.add('highlight');
+        let el = t;
+        while (el && !el.classList.contains('main-item')) {
+          el = el.parentElement.closest('.content');
+          if (el) el.classList.add('expanded');
+        }
+        t.classList.add('expanded');
+      } else {
+        t.classList.remove('highlight');
+        const cont = t.nextElementSibling;
+        if (cont && cont.classList.contains('expanded')) cont.classList.remove('expanded');
+      }
+    });
+  });
+inputRicerca.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      btnRicerca.click();
+    }
+  });
+
+  btnClear.addEventListener('click', () => {
+    inputRicerca.value = '';
+    document.querySelectorAll('.title').forEach(t => t.classList.remove('highlight') && t.classList.remove('expanded'));
+  });
+
 });
