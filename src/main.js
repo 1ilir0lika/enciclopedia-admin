@@ -134,29 +134,36 @@ function createMainItem(text) {
     return item;
   }
 
-  function addDescriptionInput(titleEl, item) {
-    const input = createElement('input', 'description-input');
-    input.placeholder = 'Aggiungi una descrizione...';
-    input.type = 'text';
+function addDescriptionInput(titleEl, item) {
+  // Avoid adding multiple inputs
+  if (titleEl.querySelector('.description-input')) return;
 
-    const okBtn = createElement('button', 'ok-btn', '✔️ OK');
+  const input = createElement('input', 'description-input');
+  input.placeholder = 'Aggiungi una descrizione...';
+  input.type = 'text';
 
-    titleEl.appendChild(input);
-    titleEl.appendChild(okBtn);
-    input.focus();
+  const okBtn = createElement('button', 'ok-btn', '✔️ OK');
 
-    okBtn.addEventListener('click', () => {
-      const desc = input.value.trim();
-      if (desc) {
-        const span = createElement('span', 'description', desc);
-        titleEl.appendChild(span);
-        salvaDescrizione(desc, item);
-        salvaAlbero();
-      }
-      input.remove();
-      okBtn.remove();
-    });
-  }
+  okBtn.addEventListener('click', () => {
+    const desc = input.value.trim();
+    if (desc) {
+      // Remove any existing description
+      const existing = titleEl.querySelector('.description');
+      if (existing) existing.remove();
+
+      const span = createElement('span', 'description', desc);
+      titleEl.appendChild(span);
+      salvaDescrizione(desc, item);
+      salvaAlbero();
+    }
+    input.remove();
+    okBtn.remove();
+  });
+
+  titleEl.appendChild(input);
+  titleEl.appendChild(okBtn);
+  input.focus();
+}
 
   function salvaDescrizione(text, item) {
     const key = item.querySelector('.title').textContent.trim();
