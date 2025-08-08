@@ -149,7 +149,7 @@ function createMainItem(text) {
   }
 
   function salvaDescrizione(text, item) {
-    const key = item.querySelector('.title').textContent.trim();
+    const key = item.querySelector('.title > span').textContent.trim();
     const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
     stored[key] = text;
     localStorage.setItem('descrizioni', JSON.stringify(stored));
@@ -183,7 +183,7 @@ function reinitTree() {
         if (subSubTitle) {
           createControls(subSubTitle, null, 2);
 
-          const key = subSubTitle.textContent.trim();
+          const key = subSubTitle.querySelector('span').textContent.trim();  // Cambiato qui per prendere solo il titolo
           const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
           const desc = stored[key];
 
