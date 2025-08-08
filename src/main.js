@@ -148,12 +148,13 @@ function createMainItem(text) {
     });
   }
 
-  function salvaDescrizione(text, item) {
-    const key = item.querySelector('.title > span').textContent.trim();
-    const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
-    stored[key] = text;
-    localStorage.setItem('descrizioni', JSON.stringify(stored));
-  }
+function salvaDescrizione(text, item) {
+  // Prendo SOLO il testo del titolo dal primo span
+  const key = item.querySelector('.title > span').textContent.trim();
+  const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
+  stored[key] = text;
+  localStorage.setItem('descrizioni', JSON.stringify(stored));
+}
 
   function salvaAlbero() {
     localStorage.setItem("encyclopediaTree", encyclopedia.innerHTML);
@@ -180,19 +181,29 @@ function reinitTree() {
       const subSubItems = subContent.querySelectorAll('.sub-sub-item');
       subSubItems.forEach(subSub => {
         const subSubTitle = subSub.querySelector(':scope > .title');
-        if (subSubTitle) {
-          createControls(subSubTitle, null, 2);
+        if (!subSubTitle) return;
 
-          const key = subSubTitle.querySelector('span').textContent.trim();  // Cambiato qui per prendere solo il titolo
-          const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
-          const desc = stored[key];
+        createControls(subSubTitle, null, 2);
 
-          if (desc && !subSubTitle.querySelector('.description')) {
-            const span = createElement('span', 'description', desc);
-            subSubTitle.appendChild(span);
-          } else if (!desc && !subSubTitle.querySelector('input')) {
-            addDescriptionInput(subSubTitle, subSub);
-          }
+        // Extract only the title text from the first <span> inside .title
+        const titleSpan = subSubTitle.querySelector('span');
+        if (!titleSpan) return;
+        const key = titleSpan.textContent.trim();
+
+        const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
+        const desc = stored[key];
+
+        // Remove any existing description span to avoid duplicates
+        const existingDesc = subSubTitle.querySelector('.description');
+        if (existingDesc) existingDesc.remove();
+
+        if (desc) {
+          // Append the stored description as a separate span
+          const descSpan = createElement('span', 'description', desc);
+          subSubTitle.appendChild(descSpan);
+        } else if (!subSubTitle.querySelector('input')) {
+          // If no description and no input, add the input field to create one
+          addDescriptionInput(subSubTitle, subSub);
         }
       });
     });
