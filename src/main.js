@@ -185,7 +185,6 @@ function reinitTree() {
 
         createControls(subSubTitle, null, 2);
 
-        // Extract only the title text from the first <span> inside .title
         const titleSpan = subSubTitle.querySelector('span');
         if (!titleSpan) return;
         const key = titleSpan.textContent.trim();
@@ -193,16 +192,45 @@ function reinitTree() {
         const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
         const desc = stored[key];
 
-        // Remove any existing description span to avoid duplicates
+        // Remove any existing description/control to prevent duplication
         const existingDesc = subSubTitle.querySelector('.description');
         if (existingDesc) existingDesc.remove();
 
+        const existingControls = subSubTitle.querySelector('.description-controls');
+        if (existingControls) existingControls.remove();
+
         if (desc) {
-          // Append the stored description as a separate span
           const descSpan = createElement('span', 'description', desc);
           subSubTitle.appendChild(descSpan);
+
+          // Add description controls (Edit / Delete)
+          const controls = createElement('span', 'description-controls');
+
+          const editBtn = createElement('button', 'control-btn', '✏️');
+          editBtn.addEventListener('click', () => {
+            const newDesc = prompt('Modifica descrizione:', descSpan.textContent);
+            if (newDesc !== null) {
+              descSpan.textContent = newDesc;
+              salvaDescrizione(newDesc, subSub);
+            }
+          });
+
+          const delBtn = createElement('button', 'control-btn', '🗑️');
+          delBtn.addEventListener('click', () => {
+            descSpan.remove();
+            controls.remove();
+
+            // Also remove from localStorage
+            const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
+            delete stored[key];
+            localStorage.setItem('descrizioni', JSON.stringify(stored));
+          });
+
+          controls.appendChild(editBtn);
+          controls.appendChild(delBtn);
+          subSubTitle.appendChild(controls);
+
         } else if (!subSubTitle.querySelector('input')) {
-          // If no description and no input, add the input field to create one
           addDescriptionInput(subSubTitle, subSub);
         }
       });
