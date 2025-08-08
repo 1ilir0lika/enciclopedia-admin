@@ -203,8 +203,8 @@ function reinitTree() {
         const subSubTitle = subSub.querySelector(':scope > .title');
         if (subSubTitle) {
           createControls(subSubTitle, null, 2);
-
-          const key = subSubTitle.textContent.trim();
+          const span = subSubTitle.querySelector('span');
+          const key = span ? span.textContent.trim() : '';
           const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
           const desc = stored[key];
 
