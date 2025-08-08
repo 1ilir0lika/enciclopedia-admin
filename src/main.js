@@ -4,15 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const saveBtn = document.getElementById("save");
   const loadBtn = document.getElementById("load");
   const toggleBtn = document.getElementById('toggle-theme');
-  const inputRicerca = document.getElementById('search-input');
-  const btnRicerca = document.getElementById('search-btn');
-  const btnClear = document.getElementById('clear-btn');
-
-  // chiudi tutto(dopo chiusura ricerca)
-  function chiudiTutti() {
-    document.querySelectorAll('.content.expanded').forEach(c => c.classList.remove('expanded'));
-    document.querySelectorAll('.title.expanded').forEach(t => t.classList.remove('expanded'));
-  }
 
   // Applica il tema salvato
   if (localStorage.getItem('tema') === 'scuro') {
@@ -38,19 +29,18 @@ document.addEventListener('DOMContentLoaded', () => {
 function attachToggle(title, content) {
   if (!title || !content) return;
 
-  // Remove any previous click event (prevent duplicate binding)
-  const newTitle = title.cloneNode(true);
-  newTitle.replaceChildren(...title.childNodes); // preserve children
-  title.replaceWith(newTitle);
+  if (title.dataset.toggleAttached === 'true') return;
 
-  newTitle.addEventListener('click', () => {
+  // Always ensure content is initially visible for new items
+  content.style.display = content.style.display || 'block';
+
+  title.addEventListener('click', () => {
     const currentDisplay = window.getComputedStyle(content).display;
     content.style.display = currentDisplay === 'none' ? 'block' : 'none';
   });
 
-  createControls(newTitle, content, 0); // Or whatever level is appropriate
+  title.dataset.toggleAttached = 'true';
 }
-
 
 
   function createControls(titleEl, contentEl, level) {
@@ -124,53 +114,42 @@ function createMainItem(text) {
     return item;
   }
 
- function createSubSubItem(text) {
-  const item = createElement('div', 'sub-sub-item');
-  const title = createElement('div', 'title');
-  const span = createElement('span', '', text);
-  title.appendChild(span);
-  item.appendChild(title);
+  function createSubSubItem(text) {
+    const item = createElement('div', 'sub-sub-item');
+    const title = createElement('div', 'title');
+    title.appendChild(createElement('span', '', text));
+    createControls(title, null, 2);
+    addDescriptionInput(title, item);
+    item.appendChild(title);
+    return item;
+  }
 
-  addDescriptionInput(title, item);        // ✅ usa elementi corretti
-  createControls(title, null, 2);          // ✅ idem
+  function addDescriptionInput(titleEl, item) {
+    const input = createElement('input', 'description-input');
+    input.placeholder = 'Aggiungi una descrizione...';
+    input.type = 'text';
 
-  return item;
-}
+    const okBtn = createElement('button', 'ok-btn', '✔️ OK');
 
-function addDescriptionInput(titleEl, item) {
-  // Avoid adding multiple inputs
-  if (titleEl.querySelector('.description-input')) return;
+    titleEl.appendChild(input);
+    titleEl.appendChild(okBtn);
+    input.focus();
 
-  const input = createElement('input', 'description-input');
-  input.placeholder = 'Aggiungi una descrizione...';
-  input.type = 'text';
-
-  const okBtn = createElement('button', 'ok-btn', '✔️ OK');
-
-  okBtn.addEventListener('click', () => {
-    const desc = input.value.trim();
-    if (desc) {
-      // Remove any existing description
-      const existing = titleEl.querySelector('.description');
-      if (existing) existing.remove();
-
-      const span = createElement('span', 'description', desc);
-      titleEl.appendChild(span);
-      salvaDescrizione(desc, item);
-      salvaAlbero();
-    }
-    input.remove();
-    okBtn.remove();
-  });
-
-  titleEl.appendChild(input);
-  titleEl.appendChild(okBtn);
-  input.focus();
-}
+    okBtn.addEventListener('click', () => {
+      const desc = input.value.trim();
+      if (desc) {
+        const span = createElement('span', 'description', desc);
+        titleEl.appendChild(span);
+        salvaDescrizione(desc, item);
+        salvaAlbero();
+      }
+      input.remove();
+      okBtn.remove();
+    });
+  }
 
   function salvaDescrizione(text, item) {
-    const span = item.querySelector('.title span');
-    const key = span ? span.textContent.trim() : '';
+    const key = item.querySelector('.title').textContent.trim();
     const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
     stored[key] = text;
     localStorage.setItem('descrizioni', JSON.stringify(stored));
@@ -203,8 +182,8 @@ function reinitTree() {
         const subSubTitle = subSub.querySelector(':scope > .title');
         if (subSubTitle) {
           createControls(subSubTitle, null, 2);
-          const span = subSubTitle.querySelector('span');
-const key = span ? span.textContent.trim() : '';
+
+          const key = subSubTitle.textContent.trim();
           const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
           const desc = stored[key];
 
@@ -262,38 +241,4 @@ const key = span ? span.textContent.trim() : '';
       salvaAlbero();
     }
   });
-
-    //Ricerca
-  btnRicerca.addEventListener('click', () => {
-    chiudiTutti();
-    const query = inputRicerca.value.trim().toLowerCase();
-    if (!query) return;
-    document.querySelectorAll('.title').forEach(t => {
-      const text = t.firstChild.textContent.toLowerCase();
-      if (text.includes(query)) {
-        t.classList.add('highlight');
-        let el = t;
-        while (el && !el.classList.contains('main-item')) {
-          el = el.parentElement.closest('.content');
-          if (el) el.classList.add('expanded');
-        }
-        t.classList.add('expanded');
-      } else {
-        t.classList.remove('highlight');
-        const cont = t.nextElementSibling;
-        if (cont && cont.classList.contains('expanded')) cont.classList.remove('expanded');
-      }
-    });
-  });
-inputRicerca.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      btnRicerca.click();
-    }
-  });
-
-  btnClear.addEventListener('click', () => {
-    inputRicerca.value = '';
-    document.querySelectorAll('.title').forEach(t => t.classList.remove('highlight') && t.classList.remove('expanded'));
-  });
-
 });
