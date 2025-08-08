@@ -159,27 +159,45 @@ function createMainItem(text) {
     localStorage.setItem("encyclopediaTree", encyclopedia.innerHTML);
   }
 
-const subSubItems = subContent.querySelectorAll('.sub-sub-item');
-subSubItems.forEach(subSub => {
-  const subSubTitle = subSub.querySelector(':scope > .title');
-  if (subSubTitle) {
-    attachToggle(subSubTitle, null); // ← Aggiunto toggle anche qui
-    createControls(subSubTitle, null, 2);
+function reinitTree() {
+  const mainItems = encyclopedia.querySelectorAll('.main-item');
 
-    const titleSpan = subSubTitle.querySelector('span');
-    const key = titleSpan ? titleSpan.textContent.trim() : '';
-    const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
-    const desc = stored[key];
+  mainItems.forEach(main => {
+    const mainTitle = main.querySelector(':scope > .title');
+    const mainContent = main.querySelector(':scope > .content');
 
-    if (desc && !subSubTitle.querySelector('.description')) {
-      const spanDesc = createElement('span', 'description', desc);
-      subSubTitle.appendChild(spanDesc);
-    } else if (!desc && !subSubTitle.querySelector('input')) {
-      addDescriptionInput(subSubTitle, subSub);
-    }
-  }
-});
+    attachToggle(mainTitle, mainContent);
+    createControls(mainTitle, mainContent, 0);
 
+    const subItems = mainContent.querySelectorAll('.sub-item');
+    subItems.forEach(sub => {
+      const subTitle = sub.querySelector(':scope > .title');
+      const subContent = sub.querySelector(':scope > .content');
+
+      attachToggle(subTitle, subContent);
+      createControls(subTitle, subContent, 1);
+
+      const subSubItems = subContent.querySelectorAll('.sub-sub-item');
+      subSubItems.forEach(subSub => {
+        const subSubTitle = subSub.querySelector(':scope > .title');
+        if (subSubTitle) {
+          createControls(subSubTitle, null, 2);
+
+          const key = subSubTitle.textContent.trim();
+          const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
+          const desc = stored[key];
+
+          if (desc && !subSubTitle.querySelector('.description')) {
+            const span = createElement('span', 'description', desc);
+            subSubTitle.appendChild(span);
+          } else if (!desc && !subSubTitle.querySelector('input')) {
+            addDescriptionInput(subSubTitle, subSub);
+          }
+        }
+      });
+    });
+  });
+}
 
   // Carica da Redis
   loadBtn.addEventListener("click", async () => {
