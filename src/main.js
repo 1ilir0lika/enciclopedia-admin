@@ -38,17 +38,19 @@ document.addEventListener('DOMContentLoaded', () => {
 function attachToggle(title, content) {
   if (!title || !content) return;
 
-  // Remove any existing toggle listener if reinitializing
+  // Remove any previous click event (prevent duplicate binding)
   const newTitle = title.cloneNode(true);
-  title.parentNode.replaceChild(newTitle, title);
+  newTitle.replaceChildren(...title.childNodes); // preserve children
+  title.replaceWith(newTitle);
 
   newTitle.addEventListener('click', () => {
     const currentDisplay = window.getComputedStyle(content).display;
     content.style.display = currentDisplay === 'none' ? 'block' : 'none';
   });
 
-  newTitle.dataset.toggleAttached = 'true';
+  createControls(newTitle, content, 0); // Or whatever level is appropriate
 }
+
 
 
   function createControls(titleEl, contentEl, level) {
