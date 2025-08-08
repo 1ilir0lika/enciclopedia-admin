@@ -124,15 +124,18 @@ function createMainItem(text) {
     return item;
   }
 
-  function createSubSubItem(text) {
-    const item = createElement('div', 'sub-sub-item');
-    const title = createElement('div', 'title');
-    title.appendChild(createElement('span', '', text));
-    addDescriptionInput(subSubTitle, subSub);
-    createControls(subSubTitle, null, 2);
-    item.appendChild(title);
-    return item;
-  }
+ function createSubSubItem(text) {
+  const item = createElement('div', 'sub-sub-item');
+  const title = createElement('div', 'title');
+  const span = createElement('span', '', text);
+  title.appendChild(span);
+  item.appendChild(title);
+
+  addDescriptionInput(title, item);        // ✅ usa elementi corretti
+  createControls(title, null, 2);          // ✅ idem
+
+  return item;
+}
 
 function addDescriptionInput(titleEl, item) {
   // Avoid adding multiple inputs
@@ -166,7 +169,8 @@ function addDescriptionInput(titleEl, item) {
 }
 
   function salvaDescrizione(text, item) {
-    const key = item.querySelector('.title').textContent.trim();
+    const span = item.querySelector('.title span');
+    const key = span ? span.textContent.trim() : '';
     const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
     stored[key] = text;
     localStorage.setItem('descrizioni', JSON.stringify(stored));
