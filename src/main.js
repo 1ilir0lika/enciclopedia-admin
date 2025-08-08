@@ -128,8 +128,8 @@ function createMainItem(text) {
     const item = createElement('div', 'sub-sub-item');
     const title = createElement('div', 'title');
     title.appendChild(createElement('span', '', text));
-    createControls(title, null, 2);
-    addDescriptionInput(title, item);
+    addDescriptionInput(subSubTitle, subSub);
+    createControls(subSubTitle, null, 2);
     item.appendChild(title);
     return item;
   }
