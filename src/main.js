@@ -1,27 +1,28 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const inputRicerca = document.getElementById('search-input');
+  const btnRicerca = document.getElementById('search-btn');
+  const btnClear = document.getElementById('clear-btn');
+
   const encyclopedia = document.getElementById("encyclopedia");
   const addMainBtn = document.getElementById("add-main");
   const saveBtn = document.getElementById("save");
   const loadBtn = document.getElementById("load");
   const toggleBtn = document.getElementById('toggle-theme');
 
-   function chiudiTutti() {
+  function chiudiTutti() {
     document.querySelectorAll('.content.expanded').forEach(c => c.classList.remove('expanded'));
     document.querySelectorAll('.title.expanded').forEach(t => t.classList.remove('expanded'));
   }
-
   // Applica il tema salvato
   if (localStorage.getItem('tema') === 'scuro') {
     document.body.classList.add('dark-mode');
   }
-
   // Cambia tema al click
   toggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-mode');
     const isDark = document.body.classList.contains('dark-mode');
     localStorage.setItem('tema', isDark ? 'scuro' : 'chiaro');
   });
-
   // Utilità: crea elemento HTML
   function createElement(tag, className, textContent = '') {
     const el = document.createElement(tag);
@@ -31,62 +32,64 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Toggle visibilità contenuto
-  function attachToggle(title, content) {
-    if (!title || !content) return;
-    if (title.dataset.toggleAttached === 'true') return;
+function attachToggle(title, content) {
+  if (title.dataset.toggleAttached === 'true') return;
 
-    title.addEventListener('click', () => {
-      content.style.display = content.style.display === 'none' ? 'block' : 'none';
-    });
+  title.addEventListener('click', () => {
+    content.style.display = content.style.display === 'none' ? 'block' : 'none';
+  });
 
-    title.dataset.toggleAttached = 'true';
-  }
+  title.dataset.toggleAttached = 'true';
+}
 
-  function createControls(titleEl, contentEl, level) {
-    const existingControls = titleEl.querySelector('.controls');
-    if (existingControls) existingControls.remove();
+function createControls(titleEl, contentEl, level) {
+  // ✅ Rimuove controlli esistenti
+  const existingControls = titleEl.querySelector('.controls');
+  if (existingControls) existingControls.remove();
 
-    const controls = createElement('div', 'controls');
+  const controls = createElement('div', 'controls');
 
-    if (contentEl) {
-      const addBtn = createElement('button', 'control-btn', '+ Aggiungi');
-      addBtn.addEventListener('click', () => {
-        const text = prompt('Titolo:');
-        if (!text) return;
+  // 🔁 Bottone generico per aggiungere elementi figli
+  if (contentEl) {
+    const addBtn = createElement('button', 'control-btn', '+ Aggiungi');
+    addBtn.addEventListener('click', () => {
+      const text = prompt('Titolo:');
+      if (!text) return;
 
-        let newItem;
-        if (level === 0) newItem = createSubItem(text);
-        else if (level === 1) newItem = createSubSubItem(text);
-        else return;
+      let newItem;
+      if (level === 0) newItem = createSubItem(text);
+      else if (level === 1) newItem = createSubSubItem(text);
+      else return;
 
-        contentEl.appendChild(newItem);
-        salvaAlbero();
-      });
-      controls.appendChild(addBtn);
-    }
-
-    const delBtn = createElement('button', 'control-btn', '🗑️');
-    delBtn.addEventListener('click', () => {
-      titleEl.parentElement.remove();
+      contentEl.appendChild(newItem);
       salvaAlbero();
     });
-    controls.appendChild(delBtn);
-
-    const editBtn = createElement('button', 'control-btn', '✏️');
-    editBtn.addEventListener('click', () => {
-      const titleSpan = titleEl.querySelector('span');
-      const currentText = titleSpan ? titleSpan.textContent : '';
-      const newTitle = prompt('Modifica titolo:', currentText);
-      if (newTitle && titleSpan) {
-        titleSpan.textContent = newTitle;
-        salvaAlbero();
-      }
-    });
-    controls.appendChild(editBtn);
-
-    titleEl.appendChild(controls);
+    controls.appendChild(addBtn);
   }
 
+  // 🗑️ Elimina
+  const delBtn = createElement('button', 'control-btn', '🗑️');
+  delBtn.addEventListener('click', () => {
+    titleEl.parentElement.remove();
+    salvaAlbero();
+  });
+  controls.appendChild(delBtn);
+
+  // ✏️ Modifica
+  const editBtn = createElement('button', 'control-btn', '✏️');
+  editBtn.addEventListener('click', () => {
+    const titleSpan = titleEl.querySelector('span');
+    const currentText = titleSpan ? titleSpan.textContent : '';
+    const newTitle = prompt('Modifica titolo:', currentText);
+    if (newTitle && titleSpan) {
+      titleSpan.textContent = newTitle;
+      salvaAlbero();
+    }
+  });
+  controls.appendChild(editBtn);
+
+  titleEl.appendChild(controls);
+}
   function createMainItem(text) {
     const item = createElement('div', 'main-item');
     const title = createElement('div', 'title');
@@ -156,49 +159,47 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem("encyclopediaTree", encyclopedia.innerHTML);
   }
 
-  function reinitTree() {
-    const mainItems = encyclopedia.querySelectorAll('.main-item');
+function reinitTree() {
+  const mainItems = encyclopedia.querySelectorAll('.main-item');
+  mainItems.forEach(main => {
+    const title = main.querySelector('.title');
+    const content = main.querySelector('.content');
+    if (title && content) {
+      attachToggle(title, content);
+      createControls(title, content, 0);
+    }
 
-    mainItems.forEach(main => {
-      const title = main.querySelector(':scope > .title');
-      const content = main.querySelector(':scope > .content');
-
-      if (title && content) {
-        attachToggle(title, content);
-        createControls(title, content, 0);
+    const subItems = main.querySelectorAll('.sub-item');
+    subItems.forEach(sub => {
+      const subTitle = sub.querySelector('.title');
+      const subContent = sub.querySelector('.content');
+      if (subTitle && subContent) {
+        attachToggle(subTitle, subContent);
+        createControls(subTitle, subContent, 1);
       }
 
-      const subItems = content.querySelectorAll(':scope > .sub-item');
-      subItems.forEach(sub => {
-        const subTitle = sub.querySelector(':scope > .title');
-        const subContent = sub.querySelector(':scope > .content');
+      const subSubItems = sub.querySelectorAll('.sub-sub-item');
+      subSubItems.forEach(subSub => {
+        const subSubTitle = subSub.querySelector('.title');
+        if (subSubTitle) {
+          createControls(subSubTitle, null, 2);
 
-        if (subTitle && subContent) {
-          attachToggle(subTitle, subContent);
-          createControls(subTitle, subContent, 1);
-        }
+          const key = subSubTitle.textContent.trim();
+          const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
+          const desc = stored[key];
 
-        const subSubItems = subContent.querySelectorAll(':scope > .sub-sub-item');
-        subSubItems.forEach(subSub => {
-          const subSubTitle = subSub.querySelector(':scope > .title');
-          if (subSubTitle) {
-            createControls(subSubTitle, null, 2);
-
-            const key = subSubTitle.textContent.trim();
-            const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
-            const desc = stored[key];
-
-            if (desc && !subSubTitle.querySelector('.description')) {
-              const span = createElement('span', 'description', desc);
-              subSubTitle.appendChild(span);
-            } else if (!desc && !subSubTitle.querySelector('input')) {
-              addDescriptionInput(subSubTitle, subSub);
-            }
+          if (desc && !subSubTitle.querySelector('.description')) {
+            const span = createElement('span', 'description', desc);
+            subSubTitle.appendChild(span);
+          } else if (!desc) {
+            addDescriptionInput(subSubTitle, subSub);
           }
-        });
+        }
       });
     });
-  }
+  });
+}
+
 
   // Carica da Redis
   loadBtn.addEventListener("click", async () => {
@@ -242,4 +243,36 @@ document.addEventListener('DOMContentLoaded', () => {
       salvaAlbero();
     }
   });
+  //Ricerca
+    btnRicerca.addEventListener('click', () => {
+      chiudiTutti();
+      const query = inputRicerca.value.trim().toLowerCase();
+      if (!query) return;
+      document.querySelectorAll('.title').forEach(t => {
+        const text = t.firstChild.textContent.toLowerCase();
+        if (text.includes(query)) {
+          t.classList.add('highlight');
+          let el = t;
+          while (el && !el.classList.contains('main-item')) {
+            el = el.parentElement.closest('.content');
+            if (el) el.classList.add('expanded');
+          }
+          t.classList.add('expanded');
+        } else {
+          t.classList.remove('highlight');
+          const cont = t.nextElementSibling;
+          if (cont && cont.classList.contains('expanded')) cont.classList.remove('expanded');
+        }
+      });
+    });
+  inputRicerca.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        btnRicerca.click();
+      }
+    });
+
+    btnClear.addEventListener('click', () => {
+      inputRicerca.value = '';
+      document.querySelectorAll('.title').forEach(t => t.classList.remove('highlight') && t.classList.remove('expanded'));
+    });
 });
