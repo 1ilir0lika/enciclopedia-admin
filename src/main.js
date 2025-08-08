@@ -204,7 +204,7 @@ function reinitTree() {
         if (subSubTitle) {
           createControls(subSubTitle, null, 2);
           const span = subSubTitle.querySelector('span');
-          const key = span ? span.textContent.trim() : '';
+const key = span ? span.textContent.trim() : '';
           const stored = JSON.parse(localStorage.getItem('descrizioni')) || {};
           const desc = stored[key];
 
