@@ -243,36 +243,35 @@ function reinitTree() {
       salvaAlbero();
     }
   });
-  //Ricerca
-    btnRicerca.addEventListener('click', () => {
-      chiudiTutti();
-      const query = inputRicerca.value.trim().toLowerCase();
-      if (!query) return;
-      document.querySelectorAll('.title').forEach(t => {
-        const text = t.firstChild.textContent.toLowerCase();
-        if (text.includes(query)) {
-          t.classList.add('highlight');
-          let el = t;
-          while (el && !el.classList.contains('main-item')) {
-            el = el.parentElement.closest('.content');
-            if (el) el.classList.add('expanded');
-          }
-          t.classList.add('expanded');
-        } else {
-          t.classList.remove('highlight');
-          const cont = t.nextElementSibling;
-          if (cont && cont.classList.contains('expanded')) cont.classList.remove('expanded');
+//Ricerca
+  btnRicerca.addEventListener('click', () => {
+    chiudiTutti();
+    const query = inputRicerca.value.trim().toLowerCase();
+    if (!query) return;
+    document.querySelectorAll('.title').forEach(t => {
+      const text = t.firstChild.textContent.toLowerCase();
+      if (text.includes(query)) {
+        t.classList.add('highlight');
+        let el = t;
+        while (el && !el.classList.contains('main-item')) {
+          el = el.parentElement.closest('.content');
+          if (el) el.classList.add('expanded');
         }
-      });
-    });
-  inputRicerca.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        btnRicerca.click();
+        t.classList.add('expanded');
+      } else {
+        t.classList.remove('highlight');
+        const cont = t.nextElementSibling;
+        if (cont && cont.classList.contains('expanded')) cont.classList.remove('expanded');
       }
     });
-
-    btnClear.addEventListener('click', () => {
-      inputRicerca.value = '';
-      document.querySelectorAll('.title').forEach(t => t.classList.remove('highlight') && t.classList.remove('expanded'));
-    });
+  });
+inputRicerca.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      btnRicerca.click();
+    }
+  });
+   btnClear.addEventListener('click', () => {
+    inputRicerca.value = '';
+    document.querySelectorAll('.title').forEach(t => t.classList.remove('highlight') && t.classList.remove('expanded'));
+  });
 });
